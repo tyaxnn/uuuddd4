@@ -5,7 +5,7 @@ import matplotlib.patches as mpatches
 import numpy as np
 import os
 
-def create_filename_base(prefix, lambda_val, j_val, mesh_x, mesh_y, div):
+def create_filename_base(prefix, lambda_val, j_val, mesh_x, mesh_y, div, threshold_berry):
     """
     設定値からファイル名のベース部分を生成する関数
     """
@@ -15,20 +15,24 @@ def create_filename_base(prefix, lambda_val, j_val, mesh_x, mesh_y, div):
 
     # f-stringを使って最終的な文字列を組み立てる
     filename = (
-        f"./data/data_{prefix}_lambda{lambda_str}_j{j_str}_mesh_x{mesh_x}_mesh_y{mesh_y}_div{div}.dat"
+        f"./data_qmd/data_{prefix}_lambda{lambda_str}_j{j_str}_mesh_x{mesh_x}_mesh_y{mesh_y}_div{div}_thresh10em{threshold_berry}.dat"
     )
     
     return filename
 
 # ==== ファイル名リスト ====
 file_list = [
-    create_filename_base("UuudddTmd", 0.3, 0.25, 1000, 1000, 300),
-    create_filename_base("TwinTmd", 0.3, 0.25, 1000, 1000, 300),
-    create_filename_base("One2Tmd", 0.3, 0.25, 1000, 1000, 300),
-    create_filename_base("Tri1Tmd", 0.3, 0.25, 1000, 1000, 300),
+    # create_filename_base("UuudddTmd", 0.3, 0.25, 1000, 1000, 300),
+    # create_filename_base("TwinTmd", 0.3, 0.25, 1000, 1000, 300),
+    # create_filename_base("One2Tmd", 0.3, 0.25, 1000, 1000, 300),
+    create_filename_base("Tri1Tmd", 0.3, 0.25, 2000, 2000, 307,12),
+    create_filename_base("One2Tmd", 0.3, 0.25, 2000, 2000, 200,12),
 ]
 
-labels = ["UuudddTmd", "TwinTmd", "One2Tmd", "TriTmd"]
+# labels = ["UuudddTmd", "TwinTmd", "One2Tmd", "Tri1Tmd", "One2Tmd(2000x2000)"]
+
+labels = ["Tri1Tmd(2000x2000)","One2Tmd(2000x2000)"]
+
 
 # ==== 色設定 ====
 num_files = len(file_list)
@@ -38,37 +42,43 @@ colors = cm.rainbow(np.linspace(0, 1, num_files))
 plt.rcParams['font.size'] = 24
 
 # ==== プロット準備 ====
-fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(14, 16), sharex=True)  # 横幅を広げた
+fig, axes = plt.subplots(nrows=5, ncols=1, figsize=(14, 16), sharex=True)  # 横幅を広げた
 
 # ==== 全ファイルのy軸範囲をまとめて取得 ====
-ymins = np.full(3, np.inf)
-ymaxs = np.full(3, -np.inf)
+ymins = np.full(5, np.inf)
+ymaxs = np.full(5, -np.inf)
 
 for i, filename in enumerate(file_list):
     file_path = f"{filename}"
     df = pd.read_csv(file_path, comment='#', header=None,
-                     names=["n","energy", "bc_sum", "bcd_x_sum", "bcd_y_sum"])
+                     names=["n","energy", "bc_sum", "bcd_x_sum", "bcd_y_sum", "qmd_x_sum", "qmd_y_sum"])
     
     color = colors[i]
     axes[0].plot(df["n"], df["bc_sum"], color=color)
     axes[1].plot(df["n"], df["bcd_x_sum"], color=color)
     axes[2].plot(df["n"], df["bcd_y_sum"], color=color)
+    axes[3].plot(df["n"], df["qmd_x_sum"], color=color)
+    axes[4].plot(df["n"], df["qmd_y_sum"], color=color)
 
     # 最小最大更新
     ymins[0] = min(ymins[0], df["bc_sum"].min())
     ymins[1] = min(ymins[1], df["bcd_x_sum"].min())
     ymins[2] = min(ymins[2], df["bcd_y_sum"].min())
+    ymins[3] = min(ymins[3], df["qmd_x_sum"].min())
+    ymins[4] = min(ymins[4], df["qmd_y_sum"].min())
     ymaxs[0] = max(ymaxs[0], df["bc_sum"].max())
     ymaxs[1] = max(ymaxs[1], df["bcd_x_sum"].max())
     ymaxs[2] = max(ymaxs[2], df["bcd_y_sum"].max())
+    ymaxs[3] = max(ymaxs[3], df["qmd_x_sum"].max())
+    ymaxs[4] = max(ymaxs[4], df["qmd_y_sum"].max())
 
 # ==== y軸範囲設定 ====
 for ax, ymin, ymax in zip(axes, ymins, ymaxs):
     yrange = ymax - ymin
     if yrange < 2e-5:
         ax.set_ylim(-1e-5, 1e-5)
-    elif yrange > 10:
-        ax.set_ylim(-5, 5)
+    elif yrange > 50:
+        ax.set_ylim(-25, 25)
     else:
         ax.set_ylim(yrange/2, -yrange/2)
 
@@ -76,9 +86,11 @@ for ax, ymin, ymax in zip(axes, ymins, ymaxs):
 axes[0].set_ylabel("BC")
 axes[1].set_ylabel("BCD X")
 axes[2].set_ylabel("BCD Y")
-axes[2].set_xlabel("n")
+axes[3].set_ylabel("QMD X")
+axes[4].set_ylabel("QMD Y")
+axes[4].set_xlabel("n")
 
-plt.suptitle("bc bcd", fontsize=28)
+plt.suptitle("bc bcd qmd", fontsize=28)
 for ax in axes:
     ax.grid(True)
 
@@ -99,7 +111,7 @@ fig.legend(
 plt.tight_layout(rect=[0, 0.14, 1, 0.93])  # 下にスペース追加
 
 # ==== 保存 ====
-plt.savefig("./figure/test.png", dpi=300)
+plt.savefig("./figure_qmd/test.png", dpi=300)
 print(f"画像を保存しました")
 
 plt.show()

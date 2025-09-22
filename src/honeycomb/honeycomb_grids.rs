@@ -7,7 +7,7 @@ use crate::{
 use crate::honeycomb::{
     util::{i_j_to_kk,cal_cell_area},
     setting::CalcSetting,
-    cal_berry::calculate_berry_curvature_from_seud,
+    cal_berry::{calculate_quantum_metric_from_seud, Tensor}
 };
 
 use nalgebra::{Complex, Vector2, Vector6};
@@ -126,10 +126,6 @@ impl EigenVectorEnum{
 impl Grids{
     /// Gridsを構築し、各k点での対角化と同時にBerry曲率も計算する
     /// 
-    /// この実装では、従来のcal_berry関数を呼び出す必要がありません。
-    /// 各k点での対角化直後にBerry曲率を計算することで、
-    /// ハミルトニアンの微分計算の重複を避け、効率的な実装となっています。
-    /// 
     /// # Arguments
     /// * `calc_setting` - 計算設定（メッシュサイズなど）
     /// * `system` - システム情報
@@ -162,7 +158,7 @@ impl Grids{
                 let seud_enum = diag(&system,kk);
 
                 // SEudEnumからBerry曲率を計算
-                let berry_curvatures = calculate_berry_curvature_from_seud(&seud_enum, &system, kk, cell_area);
+                let berry_curvatures = calculate_quantum_metric_from_seud(&seud_enum, &system, kk, cell_area, true, Tensor::XY,&calc_setting);
 
                 match seud_enum{
                     SEudEnum::SEud2(seud) => {

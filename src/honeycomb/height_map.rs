@@ -1,8 +1,6 @@
 use crate::honeycomb::{
-    honeycomb_grids::{BandInfo, Grid, Grids},
-    cal_berry::{calculate_berry_curvature_from_seud,cal_anomaly_velocity},
-    setting::CalcSetting,
-    util::cal_cell_area,
+    cal_berry::{cal_anomaly_velocity, calculate_berry_curvature_from_seud, calculate_quantum_metric_from_seud, Tensor}, 
+    honeycomb_grids::{BandInfo, Grid, Grids}, setting::CalcSetting, util::cal_cell_area
 };
 
 use crate::system::{
@@ -57,14 +55,14 @@ impl AllHeightMaps{
                             if let Some(line) = create_triangle_line(ab, bd, da) {
                                 let mut  calced_line = line;
                                 //line上でのBerry曲率と異常速度を計算してセットする
-                                calced_line.set_berry_and_anomaly_velocity(&grids.calc_setting, &grids.system, ud, band_num);
+                                calced_line.set_berry_quantum_geometry(&grids.calc_setting, &grids.system, ud, band_num);
                                 height_map.contents[index].0.push(calced_line);
                             }
                             //次に、三角形BCDについて等高線を引く
                             if let Some(line) = create_triangle_line(bc, cd, bd) {
                                 let mut  calced_line = line;
                                 //line上でのBerry曲率と異常速度を計算してセットする
-                                calced_line.set_berry_and_anomaly_velocity(&grids.calc_setting, &grids.system, ud, band_num);
+                                calced_line.set_berry_quantum_geometry(&grids.calc_setting, &grids.system, ud, band_num);
                                 height_map.contents[index].0.push(calced_line);
                             }
                             
@@ -205,11 +203,14 @@ pub struct Line{
     pub end : Vector2<f64>,
     pub berry : Option<f64>,
     pub anomaly_velocity : Option<Vector2<f64>>,
+    pub gm_xx : Option<f64>,
+    pub gm_xy : Option<f64>,  
+    pub gm_yy : Option<f64>,
 }
 
 impl Line{
     pub fn new(ini : Vector2<f64>, end : Vector2<f64>) -> Self{
-        Line { ini, end, berry: None, anomaly_velocity: None }
+        Line { ini, end, berry: None, anomaly_velocity: None, gm_xx: None, gm_xy: None, gm_yy: None }
     }
     pub fn length(&self) -> f64{
         let diff = self.end - self.ini;
@@ -218,12 +219,16 @@ impl Line{
     pub fn center(&self) -> Vector2<f64>{
         (self.ini + self.end) / 2.0
     }
-    pub fn set_berry_and_anomaly_velocity(&mut self, calc_setting: &CalcSetting, system : &System, ud : usize, band_num : usize){
+    pub fn set_berry_quantum_geometry(&mut self, calc_setting: &CalcSetting, system : &System, ud : usize, band_num : usize){
         let kk = self.center();
         let seud = diag(system,kk);
         let cell_area = cal_cell_area(calc_setting.mesh_kx, calc_setting.mesh_ky, system.size());
-        self.berry = Some(calculate_berry_curvature_from_seud(&seud, system, kk,cell_area)[ud][band_num] / cell_area);
+        self.berry = Some(calculate_berry_curvature_from_seud(&seud, system, kk,cell_area,calc_setting)[ud][band_num] / cell_area);
         self.anomaly_velocity = Some(cal_anomaly_velocity(&seud, system, kk, ud, band_num));
+        //量子幾何計量の計算
+        self.gm_xx = Some(calculate_quantum_metric_from_seud(&seud, system, kk, cell_area, false, Tensor::XX, calc_setting)[ud][band_num] / cell_area);
+        self.gm_xy = Some(calculate_quantum_metric_from_seud(&seud, system, kk, cell_area, false, Tensor::XY, calc_setting)[ud][band_num] / cell_area);
+        self.gm_yy = Some(calculate_quantum_metric_from_seud(&seud, system, kk, cell_area, false, Tensor::YY, calc_setting)[ud][band_num] / cell_area);
     }
 }
 

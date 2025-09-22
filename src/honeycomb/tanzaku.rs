@@ -18,22 +18,22 @@ impl Tanzakus{
     pub fn new(setting: CalcSetting, system : System) -> Self{
         let div = setting.height_map_div;
         Self{
-            data : vec![Tanzaku::new(0.0,0.0,0.0,Vector2::new(0.0,0.0));div],
+            data : vec![Tanzaku::new(0.0,0.0,0.0,Vector2::new(0.0,0.0), Vector2::new(0.0,0.0));div],
             setting,
             system
         }
     }
     pub fn write_to_dat(&self) -> std::io::Result<()>{
         // 出力ディレクトリを作成（存在しない場合）
-        std::fs::create_dir_all("./out_tanzaku/data")?;  
+        std::fs::create_dir_all("./out_tanzaku/data_qmd")?;  
 
         let system_str = self.system.debug();
-        let path = format!("./out_tanzaku/data/data_{}_{}.dat", system_str, self.setting.debug());
+        let path = format!("./out_tanzaku/data_qmd/data_{}_{}.dat", system_str, self.setting.debug());
 
         let mut file = std::fs::File::create(path)?;
-        writeln!(file, "# n,energy,berry,bcd_x,bcd_y")?;
+        writeln!(file, "# n,energy,berry,bcd_x,bcd_y,qmd_x,qmd_y")?;
         for tanzaku in &self.data{
-            writeln!(file, "{},{},{},{},{}",tanzaku.n,tanzaku.energy,tanzaku.berry,tanzaku.bcd.x,tanzaku.bcd.y)?;
+            writeln!(file, "{},{},{},{},{},{},{}",tanzaku.n,tanzaku.energy,tanzaku.berry,tanzaku.bcd.x,tanzaku.bcd.y,tanzaku.qmd.x,tanzaku.qmd.y)?;
         }
         Ok(())
     }
@@ -45,8 +45,11 @@ impl Tanzakus{
         for energy_index in 0..div {
             let mut total_bcd_x = 0.0;
             let mut total_bcd_y = 0.0;
+
+            let mut total_qmd_x = 0.0;
+            let mut total_qmd_y = 0.0;
             
-            // 全スピン、全バンドのBCDを合計
+            // 全スピン、全バンドのBCD,QMDを合計
             for spin in 0..2 {
                 let height_maps = all_heights_maps.index(spin);
                 
@@ -56,11 +59,17 @@ impl Tanzakus{
                         
                         // このエネルギーレベルの全ラインのBCDを合計
                         for line in &height_map_level.0 {
-                            if let (Some(berry), Some(anomaly_velocity)) = (line.berry, line.anomaly_velocity) {
+                            if let (Some(berry), Some(anomaly_velocity), Some(gm_xx), Some(gm_xy), Some(gm_yy)) = (line.berry, line.anomaly_velocity, line.gm_xx, line.gm_xy, line.gm_yy) {
                                 let bcd_x = anomaly_velocity.x * berry * line.length();
                                 let bcd_y = anomaly_velocity.y * berry * line.length();
+
+                                let qmd_x = (anomaly_velocity.y * gm_xx - anomaly_velocity.x * gm_xy) * line.length();
+                                let qmd_y = (anomaly_velocity.x * gm_yy - anomaly_velocity.y * gm_xy) * line.length();
+
                                 total_bcd_x += bcd_x;
                                 total_bcd_y += bcd_y;
+                                total_qmd_x += qmd_x;
+                                total_qmd_y += qmd_y;
                             }
                         }
                     }
@@ -68,6 +77,7 @@ impl Tanzakus{
             }
 
             self.data[energy_index].bcd = Vector2::new(total_bcd_x, total_bcd_y);
+            self.data[energy_index].qmd = Vector2::new(total_qmd_x, total_qmd_y);
         }
         
     }
@@ -133,16 +143,18 @@ pub struct Tanzaku {
     pub n : f64,
     pub energy : f64,
     pub berry : f64,
-    pub bcd : Vector2<f64>
+    pub bcd : Vector2<f64>,
+    pub qmd : Vector2<f64>,
 }
 
 impl Tanzaku{
-    pub fn new(n:f64,energy:f64,berry:f64,bcd:Vector2<f64>) -> Self{
+    pub fn new(n:f64,energy:f64,berry:f64,bcd:Vector2<f64>,qmd:Vector2<f64>) -> Self{
         Self{
             n,
             energy,
             berry,
-            bcd
+            bcd,
+            qmd
         }
     }
 }

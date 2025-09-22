@@ -11,12 +11,13 @@ use uuuddd4::{
 fn main() -> std::io::Result<()> {
     // 計算設定
     let calc_setting = CalcSetting{
-        mesh_kx : 1000,
-        mesh_ky : 1000,
+        mesh_kx : 2000,
+        mesh_ky : 2000,
         height_map_div : 300,   // 等高線の分割数
+        threshold_berry : 1e-36, // Berry曲率計算の際の閾値
     };
 
-    let system = system::model::System::Tri1Tmd(Param::interesting());
+    let system = system::model::System::One2Tmd(Param::interesting());
 
     // ハニカム格子の構築
     let grids = Grids::build(calc_setting, system);
