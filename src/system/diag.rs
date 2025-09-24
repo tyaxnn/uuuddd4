@@ -119,9 +119,9 @@ where
 // 対角化
 //----------------------------------------------------------------
 
-pub fn diag(system: &System, kk: Vector2<f64>) -> SEudEnum {
+pub fn diag(system: &System, kk: Vector2<f64>,force_6 : bool) -> SEudEnum {
 
-    let hamiltonian_enum = hamiltonian::hamiltonian_from_system(system, kk);
+    let hamiltonian_enum = hamiltonian::hamiltonian_from_system(system, kk,force_6);
 
     match hamiltonian_enum {
         HamiltonianEnum::H2(hamiltonian) => {

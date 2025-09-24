@@ -33,10 +33,16 @@ pub enum HamiltonianEnum{
 //----------------------------------------------------------------
 // システムから対角化前のハミルトニアンを生成する関数
 //----------------------------------------------------------------
-pub fn hamiltonian_from_system(system: &System, kk: Vector2<f64>) -> HamiltonianEnum{
+pub fn hamiltonian_from_system(system: &System, kk: Vector2<f64>,force_6 : bool) -> HamiltonianEnum{
     match system.size(){
         2 => {
-            HamiltonianEnum::H2(hamiltonian_2(system, kk))
+            if force_6{
+                HamiltonianEnum::H6(hamiltonian_6(system, kk))
+            }
+            else{
+                HamiltonianEnum::H2(hamiltonian_2(system, kk))
+            }
+
         }
         6 => {
             HamiltonianEnum::H6(hamiltonian_6(system, kk))

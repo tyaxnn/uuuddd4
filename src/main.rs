@@ -4,36 +4,36 @@ use uuuddd4::{
         honeycomb_grids::{Grids,}, 
         setting::CalcSetting,
         tanzaku::Tanzakus,
+        compare::{compare_6_spinmodel},
+        parallelization::{parallel_calculate_tanzaku,}
     }, system::{self, model::Param}
 };
+
+use std::time::Instant;
 
 
 fn main() -> std::io::Result<()> {
     // 計算設定
     let calc_setting = CalcSetting{
-        mesh_kx : 2000,
-        mesh_ky : 2000,
-        height_map_div : 300,   // 等高線の分割数
+        mesh_kx : 400,
+        mesh_ky : 400,
+        height_map_div : 301,   // 等高線の分割数
         threshold_berry : 1e-12, // Berry曲率計算の際の閾値
+        main_mesh : 35,
     };
 
-    let system = system::model::System::UuudddTmd(Param::interesting());
+    let system = system::model::System::Tri1Tmd(Param::interesting());
 
-    // ハニカム格子の構築
-    let grids = Grids::build(calc_setting, system);
+    let start = Instant::now();
 
-    // 全バンドの等高線データを作成
-    let all_height_maps = AllHeightMaps::build(&grids);
-    
+    let tanzaku = parallel_calculate_tanzaku(calc_setting, system);
 
+    let duration = start.elapsed();
 
-    let tanzaku = {
-        let mut tanzakus = Tanzakus::new(calc_setting,system);
-        tanzakus.write_energy_n_bc_sum_to_tanzaku(&grids);
-        tanzakus.write_bcd_sum_to_tanzakus(&all_height_maps);
-        tanzakus
-    };
+    println!("並列計算実行時間: {:?}", duration);
 
-    tanzaku.write_to_dat()?;
+    tanzaku.interpolate_by_n(3000).write_to_dat(None)?;
+
+    // compare_6_spinmodel(Param::new(0.3,0.1));
     Ok(())
 }

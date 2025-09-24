@@ -5,7 +5,7 @@ use crate::{
     diag::{diag, SEudEnum}, model::System
 }};
 use crate::honeycomb::{
-    util::{i_j_to_kk,cal_cell_area},
+    util::{i_j_to_kk,cal_cell_area,GridInfo},
     setting::CalcSetting,
     cal_berry::{calculate_quantum_metric_from_seud, Tensor}
 };
@@ -17,6 +17,7 @@ pub struct Grids{
     pub d : Vec<Grid>,
     pub system : System,
     pub calc_setting : CalcSetting,
+    pub energy_range : Option<(f64,f64)>,
 }
 impl Grids{
     pub fn to_iter(&self) -> [&Vec<Grid>;2]{
@@ -37,12 +38,17 @@ impl Grids{
         }
     }
     pub fn energy_range(&self) -> (f64,f64){
-        let up_ground = self.u[0].energy_range().0;
-        let up_heighest = self.u[self.system.size() - 1].energy_range().1;
-        let down_ground = self.d[0].energy_range().0;
-        let down_heighest = self.d[self.system.size() - 1].energy_range().1;
+        match self.energy_range{
+            Some(r) => r,
+            None => {
+                let up_ground = self.u[0].energy_range().0;
+                let up_heighest = self.u[self.system.size() - 1].energy_range().1;
+                let down_ground = self.d[0].energy_range().0;
+                let down_heighest = self.d[self.system.size() - 1].energy_range().1;
 
-        (up_ground.min(down_ground), up_heighest.max(down_heighest))
+                (up_ground.min(down_ground), up_heighest.max(down_heighest))
+    }
+        }
     }
 }
 
@@ -134,7 +140,8 @@ impl Grids{
     /// * `Self` - Berry曲率が計算済みのGrids
     pub fn build(
         calc_setting : CalcSetting,
-        system : System
+        system : System,    
+        grid_info : GridInfo,
     ) -> Self{
         let mesh_kx = calc_setting.mesh_kx;
         let mesh_ky = calc_setting.mesh_ky;
@@ -146,16 +153,16 @@ impl Grids{
         let grid_u: Vec<Grid> = vec![grid.clone();size];
         let grid_d: Vec<Grid> = vec![grid;size];
 
-        let mut grids = Grids { u: grid_u, d: grid_d, system, calc_setting };
+        let mut grids = Grids { u: grid_u, d: grid_d, system, calc_setting, energy_range : grid_info.energy_range };
 
         // セル面積を事前計算
         let cell_area = cal_cell_area(mesh_kx, mesh_ky, size);
 
         for i in 0..mesh_kx{
             for j in 0..mesh_ky{
-                let kk = i_j_to_kk(i, j, mesh_kx, mesh_ky, false, system.size());
+                let kk = i_j_to_kk(i, j, mesh_kx, mesh_ky, false, system.size(), grid_info);
 
-                let seud_enum = diag(&system,kk);
+                let seud_enum = diag(&system,kk,false);
 
                 // SEudEnumからBerry曲率を計算
                 let berry_curvatures = calculate_quantum_metric_from_seud(&seud_enum, &system, kk, cell_area, true, Tensor::XY,&calc_setting);

@@ -221,7 +221,7 @@ impl Line{
     }
     pub fn set_berry_quantum_geometry(&mut self, calc_setting: &CalcSetting, system : &System, ud : usize, band_num : usize){
         let kk = self.center();
-        let seud = diag(system,kk);
+        let seud = diag(system,kk,false);
         let cell_area = cal_cell_area(calc_setting.mesh_kx, calc_setting.mesh_ky, system.size());
         self.berry = Some(calculate_berry_curvature_from_seud(&seud, system, kk,cell_area,calc_setting)[ud][band_num] / cell_area);
         self.anomaly_velocity = Some(cal_anomaly_velocity(&seud, system, kk, ud, band_num));

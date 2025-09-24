@@ -15,6 +15,8 @@ pub enum System{
     UuudddTmd(Param),       //UUUDDD+TMD
     Tri2Tmd(Param),         //DUDUDD+TMD
     SatoTmd(Param),         //UDUDUD+TMD
+    //--------------------------------------------------------------------
+    Stable(Param),
 }
 
 impl System{
@@ -32,6 +34,8 @@ impl System{
             Self::Tri2Tmd(_) => {6}
             Self::UuudddTmd(_) => {6}
             Self::SatoTmd(_) => {2}
+            //--------------------------------------------------------------------
+            Self::Stable(_) => {panic!("Stable does not have a size");}
         }
     }
     pub fn param(&self) -> &Param{
@@ -48,6 +52,8 @@ impl System{
             Self::Tri2Tmd(param) => param,
             Self::UuudddTmd(param) => param,
             Self::SatoTmd(param) => param,
+            //--------------------------------------------------------------------
+            Self::Stable(param) => param,
         }
     }
     pub fn tmd(&self) -> bool{
@@ -64,6 +70,8 @@ impl System{
             Self::Tri2Tmd(_) => true,
             Self::UuudddTmd(_) => true,
             Self::SatoTmd(_) => true,
+            //--------------------------------------------------------------------
+            Self::Stable(_) => true,
         }
     }
     pub fn debug(&self) -> String{
@@ -80,6 +88,8 @@ impl System{
             Self::Tri2Tmd(_) => "Tri2Tmd",
             Self::UuudddTmd(_) => "UuudddTmd",
             Self::SatoTmd(_) => "SatoTmd",
+            //--------------------------------------------------------------------
+            Self::Stable(_) => "Stable",
         };
 
         format!("{}_lambda{}_j{}", system_name, self.param().lambda.to_string().replace('.', "p"), self.param().jj.to_string().replace('.', "p"))
@@ -112,6 +122,9 @@ impl System{
             }
             Self::Tmd(_) => {
                 SpinSeq6::para()
+            }
+            Self::Stable(_) => {
+                panic!("Stable does not have a spin sequence");
             }
         }
     }

@@ -3,21 +3,56 @@ use crate::honeycomb::dv2::DV2;
 
 use nalgebra::{Vector2,};
 
+
+//------------------------------------------------------------------------
+// 平行四辺形の格子の開始点と平行四辺形を構成するベクトルを格納する構造体
+//------------------------------------------------------------------------
+#[derive(Clone,Debug,Copy)]
+pub struct GridInfo{
+    pub ini : Vector2<f64>,
+    pub dxy  : Vector2<f64>,
+    pub energy_range : Option<(f64,f64)>,
+}
+
+impl GridInfo{
+    pub fn new(ini_x : f64, ini_y : f64, delta_x : f64, delta_y : f64, energy_range : Option<(f64,f64)>) -> Self{
+        let ini = Vector2::new(ini_x,ini_y);
+        let dxy = Vector2::new(delta_x,delta_y);
+
+        GridInfo { ini , dxy, energy_range  }
+    }
+    pub fn new_ijn(i : usize, j : usize, ni : usize, nj : usize, energy_range : Option<(f64,f64)>) -> Self{
+
+        let ini_x = i as f64 / ni as f64;
+        let ini_y = j as f64 / nj as f64;
+        let delta_x = 1.0 / ni as f64;
+        let delta_y = 1.0 / nj as f64;
+
+        GridInfo::new(ini_x, ini_y, delta_x, delta_y, energy_range)
+    }
+    pub fn no_divide() -> Self{
+        GridInfo::new_ijn(0,0,1,1,None)
+    }
+}
+
 pub fn i_j_to_kk(
     i : usize, j : usize, 
     mesh_kx : usize, mesh_ky : usize, 
     hex : bool, 
     size : usize,
+    grid_info : GridInfo,
 ) -> Vector2<f64>{
     let dv2_k1 = DV2::from_car(kpp(size),size) - DV2::from_car(-k(size),size);
     let dv2_k2 = DV2::from_car(kp(size),size) - DV2::from_car(-k(size),size);
 
-    let ini= DV2::from_car(-k(size),size);
+    let ini= dv2_k1 * grid_info.ini.x + dv2_k2 * grid_info.ini.y + DV2::from_car(-k(size),size);
+    let dv2_k1_grid = dv2_k1 * grid_info.dxy.x;
+    let dv2_k2_grid = dv2_k2 * grid_info.dxy.y;
 
     let if64 = i as f64 / mesh_kx as f64;
     let jf64 = j as f64 / mesh_ky as f64;
 
-    let mut kk_dv2 = dv2_k1 * if64 + dv2_k2 * jf64 + ini;
+    let mut kk_dv2 = dv2_k1_grid * if64 + dv2_k2_grid * jf64 + ini;
 
     if hex{
         if point_in_triangle_simple(kk_dv2.to_car(size), k(size), 2. * k(size), kpp(size)){
