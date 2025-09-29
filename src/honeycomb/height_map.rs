@@ -35,10 +35,10 @@ impl AllHeightMaps{
                 let grid = grids.index(ud)[band_num].clone();
                 let mut height_map = HeightMaps::initialize(ground_energy, highest_energy, div);
 
-                for i in 0..mesh_kx-1{
-                    for j in 0..mesh_ky-1{
+                for i in 0..mesh_kx{
+                    for j in 0..mesh_ky{
                         //ここでHeightMapを作る
-                        let cell = Cell::from_grid(&grid, i, j, mesh_kx, mesh_ky);
+                        let cell = Cell::from_grid(&grid, i, j);
 
                         let (min_index, max_index) = cell.index_range(&height_map);
 
@@ -244,13 +244,11 @@ impl Cell{
         grid : &Grid,
         i : usize,
         j : usize,
-        mesh_kx : usize,
-        mesh_ky : usize
     ) -> Self{
         let a = &grid.0[i][j];
-        let b = &grid.0[(i+1)%mesh_kx][j];
-        let c = &grid.0[(i+1)%mesh_kx][(j+1)%mesh_ky];
-        let d = &grid.0[i][(j+1)%mesh_ky];
+        let b = &grid.0[i+1][j];
+        let c = &grid.0[i+1][j+1];
+        let d = &grid.0[i][j+1];
 
         Cell {
             a: *a,

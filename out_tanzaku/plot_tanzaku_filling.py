@@ -35,65 +35,68 @@ def create_filename_base_2(prefix, lambda_val, j_val, mesh_x, mesh_y, div, thres
     
     return filename
 
-# # ==== ファイル名リスト ====
+# ==== ファイル名リスト ====
 
 # lam = 0.3
 # j = 0.25
 # file_list = [
-#     create_filename_base("UuudddTmd", lam, j, 2000, 2000, 300, 12),
-#     create_filename_base_2("UuudddTmd", lam, j, 400, 400, 301, 12,5),
-#     create_filename_base_2("UuudddTmd", lam, j, 400, 400, 301, 12,10),
-#     create_filename_base_2("UuudddTmd", lam, j, 400, 400, 301, 12,11)
+#     create_filename_base_2("UuudddTmd", lam, j, 400, 400, 301, 12,1),
+#     create_filename_base_2("UuudddTmd", lam, j, 400, 400, 301, 12,2),
+#     create_filename_base_2("UuudddTmd", lam, j, 800, 800, 301, 12,1),
+#     create_filename_base_2("UuudddTmd", lam, j, 800, 800, 301, 12,2),
+#     create_filename_base_2("UuudddTmd", lam, j, 800, 800, 301, 12,5),
 # ]
 
-# labels = [ "mesh 1600","mesh 400 x 5","mesh 400 x 10","mesh 400 x 11"]
+# labels = [ "mesh 400 x 1","mesh 400 x 2","mesh 800 x 1","mesh 800 x 2","mesh 400 x 35"]
 
 # row_num = 5
 
-# out_title = f"UuudddTmd_mesh_compare_2"
-
-
-# lam = 0.3
-# j = 0.10
-# mesh = 400
-# file_list = [
-#     create_filename_base_2("UuudddTmd", lam, j, mesh, mesh, 307, 12, 8,"compare_6_spinmodel"),
-#     create_filename_base_2("TwinTmd", lam, j, mesh, mesh, 307, 12, 8,"compare_6_spinmodel"),
-#     create_filename_base_2("One2Tmd", lam, j, mesh, mesh, 307, 12, 8,"compare_6_spinmodel"),
-#     create_filename_base_2("Tri1Tmd", lam, j, mesh, mesh, 307, 12, 8,"compare_6_spinmodel"),
-#     create_filename_base_2("Tri2Tmd", lam, j, mesh, mesh, 307, 12, 8,"compare_6_spinmodel"),
-#     create_filename_base_2("FmTmd", lam, j, mesh, mesh, 307, 12, 8,"compare_6_spinmodel"),
-#     create_filename_base_2("SatoTmd", lam, j, mesh, mesh, 307, 12, 8,"compare_6_spinmodel"),
-#     create_filename_base_2("stable", lam, j, mesh, mesh, 307, 12, 8,"compare_6_spinmodel"),
-# ]
-
-# labels = ["uuuddd", "Twin", "One2", "Tri1", "Tri2", "Fm", "Sato", "stable"]
-
-# row_num = 5
-
-# out_title = f"stable_lambda{lam}_j{j}_rev"
+# out_title = f"UuudddTmd_mesh_compare_4"
 
 
 lam = 0.3
-j = 0.1
-mesh = 1500
+j = 0.25
+mesh = 400
 file_list = [
-    create_filename_base("UuudddTmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("TwinTmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("One1Tmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("One2Tmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("Tri1Tmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("Tri2Tmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("FmTmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("SatoTmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("stable", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+    create_filename_base_2("UuudddTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    create_filename_base_2("TwinTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    create_filename_base_2("One2Tmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    create_filename_base_2("Tri1Tmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    create_filename_base_2("Tri2Tmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    create_filename_base_2("FmTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    create_filename_base_2("SatoTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    create_filename_base_2("stable", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
 ]
 
-labels = ["uuuddd", "uudddd", "uddddd","dudddd", "ududdd", "dududd", "dddddd", "ududud", "stable"]
+labels = ["uuuddd", "Twin", "One2", "Tri1", "Tri2", "Fm", "Sato", "stable"]
 
 row_num = 5
 
-out_title = f"stable_lambda{lam}_j{j}_row_num{row_num}"
+out_title = f"stable_lambda{lam}_j{j}_rev"
+
+create_stable = True
+
+
+# lam = 0.3
+# j = 0.1
+# mesh = 1500
+# file_list = [
+#     create_filename_base("UuudddTmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+#     create_filename_base("TwinTmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+#     create_filename_base("One1Tmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+#     create_filename_base("One2Tmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+#     create_filename_base("Tri1Tmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+#     create_filename_base("Tri2Tmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+#     create_filename_base("FmTmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+#     create_filename_base("SatoTmd", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+#     create_filename_base("stable", lam, j, mesh, mesh, 307, 12,"compare_6_spinmodel"),
+# ]
+
+# labels = ["uuuddd", "uudddd", "uddddd","dudddd", "ududdd", "dududd", "dddddd", "ududud", "stable"]
+
+# row_num = 5
+
+# out_title = f"stable_lambda{lam}_j{j}_row_num{row_num}"
 
 # ==== 色設定 ====
 num_files = len(file_list)
@@ -114,7 +117,7 @@ for i, filename in enumerate(file_list):
     df = pd.read_csv(file_path, comment='#', header=None,
                      names=["n","energy", "bc_sum", "bcd_x_sum", "bcd_y_sum", "qmd_x_sum", "qmd_y_sum"])
     
-    if i == len(file_list) -1:
+    if i == len(file_list) -1 and create_stable:
         line_width = 3
     else:
         line_width = 1
@@ -122,11 +125,11 @@ for i, filename in enumerate(file_list):
     color = colors[i]
     axes[0].plot(df["n"], df["bc_sum"], color=color, linewidth=line_width)
     axes[1].plot(df["n"], df["bcd_x_sum"], color=color, linewidth=line_width)
-    axes[2].plot(df["n"], df["bcd_y_sum"], color=color, linewidth=line_width)
+    axes[2].plot(df["n"], df["bcd_y_sum"] * 0.5 + df["bcd_x_sum"] * np.sqrt(3) * 0.5, color=color, linewidth=line_width)
 
     if row_num == 5 :
         axes[3].plot(df["n"], df["qmd_x_sum"], color=color, linewidth=line_width)
-        axes[4].plot(df["n"], df["qmd_y_sum"], color=color, linewidth=line_width)
+        axes[4].plot(df["n"], df["qmd_x_sum"] * 0.5 + df["qmd_y_sum"] * np.sqrt(3) * 0.5, color=color, linewidth=line_width)
 
     # 最小最大更新
     ymins[0] = min(ymins[0], df["bc_sum"].min())

@@ -80,8 +80,6 @@ impl Tanzakus{
                     }
                 }
             }
-            
-            let weight = 1.0 / (self.setting.main_mesh as f64).powi(2);
 
             self.data[energy_index].bcd = Vector2::new(total_bcd_x, total_bcd_y);
             self.data[energy_index].qmd = Vector2::new(total_qmd_x, total_qmd_y);

@@ -148,7 +148,7 @@ impl Grids{
 
         let size = system.size();
 
-        let grid: Grid = Grid(vec![vec![BandInfo::ini();mesh_ky];mesh_kx]);
+        let grid: Grid = Grid(vec![vec![BandInfo::ini();mesh_ky + 1];mesh_kx + 1]);
 
         let grid_u: Vec<Grid> = vec![grid.clone();size];
         let grid_d: Vec<Grid> = vec![grid;size];
@@ -158,8 +158,8 @@ impl Grids{
         // セル面積を事前計算
         let cell_area = cal_cell_area(mesh_kx, mesh_ky, size);
 
-        for i in 0..mesh_kx{
-            for j in 0..mesh_ky{
+        for i in 0..=mesh_kx{
+            for j in 0..=mesh_ky{
                 let kk = i_j_to_kk(i, j, mesh_kx, mesh_ky, false, system.size(), grid_info);
 
                 let seud_enum = diag(&system,kk,false);

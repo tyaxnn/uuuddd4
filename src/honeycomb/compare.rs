@@ -11,7 +11,7 @@ pub fn compare_6_spinmodel(param : Param) {
         mesh_ky : 400,
         height_map_div : 307,   // 等高線の分割数
         threshold_berry : 1e-12, // Berry曲率計算の際の閾値
-        main_mesh : 8,
+        main_mesh : 35,
     };
 
     let systems = vec![
