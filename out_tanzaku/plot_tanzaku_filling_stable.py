@@ -58,13 +58,14 @@ file_list = [
     create_filename_base_2(spin_names[8], lam, j, mesh, mesh, div, threshold_berry, main_mesh,"compare_6_spinmodel"),
 ]
 
-labels = ["DDDDDD","UDDDDD","DUDDDD","UUDDDD","UDUDDD","UUUDDD","DUDUDD","UDUDUD","Most stable"]
+labels = ["DDDDDD"   ,"UDDDDD"     ,"DUDDDD"    ,"UUDDDD"    ,"UDUDDD"    ,"UUUDDD"    ,"DUDUDD"    ,"UDUDUD"     ,"Most stable"]
+colors = cm.gist_rainbow(np.linspace(0, 1, 8))
 
 out_title = f"stable_lambda{lam}_j{j}_rev2"
 
 # ==== 色設定 ====
 num_files = len(file_list) -1
-colors = cm.gist_rainbow(np.linspace(0, 1, num_files))
+
 
 # ==== matplotlib全体のフォントサイズ設定 ====
 plt.rcParams['font.size'] = 24
@@ -91,7 +92,11 @@ stable_df = pd.read_csv(file_list[-1], comment='#', header=None,
 for i in range(len(file_list) - 1):  # stableを除く
     color = colors[i]
     df = dfs[i]
-    line_width = 1
+    line_width = 0.4
+
+    if labels[i] == "UUUDDD" or labels[i] == "UUDDDD":
+        line_width = 2
+
     axes[0].plot(df["n"], df["bc_sum"], color=color, linewidth=line_width)
     axes[1].plot(df["n"], df["bcd_x_sum"], color=color, linewidth=line_width)
     axes[2].plot(df["n"], df["bcd_y_sum"] * 0.5 + df["bcd_x_sum"] * np.sqrt(3) * 0.5, color=color, linewidth=line_width)
@@ -125,7 +130,7 @@ for stable in stable_df["stable"]:
     else:
         colors_for_stable.append('black')  # その他の場合は黒色
     
-marker_size = 15
+marker_size = 25
 
 axes[0].scatter(stable_df["n"], stable_df["bc_sum"], color=colors_for_stable, s=marker_size, alpha=0.7)
 axes[1].scatter(stable_df["n"], stable_df["bcd_x_sum"], color=colors_for_stable, s=marker_size, alpha=0.7)
@@ -178,7 +183,7 @@ fig.legend(
     handles=patches,
     title="Main mesh size",
     loc='lower center',
-    ncol=3,  # 一段表示
+    ncol=4,  # 一段表示
     frameon=False,
     fontsize=20,
     title_fontsize=22
