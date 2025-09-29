@@ -4,14 +4,14 @@ use crate::honeycomb::{
 
 use crate::system::{model::Param,model::System};
 
-pub fn compare_6_spinmodel(param : Param) {
+pub fn compare_6_spinmodel(param : Param, main_mesh : usize) {
     // 計算設定
     let calc_setting = CalcSetting{
         mesh_kx : 400,
         mesh_ky : 400,
         height_map_div : 307,   // 等高線の分割数
         threshold_berry : 1e-12, // Berry曲率計算の際の閾値
-        main_mesh : 35,
+        main_mesh : main_mesh,
     };
 
     let systems = vec![
@@ -42,12 +42,14 @@ pub fn compare_6_spinmodel(param : Param) {
     for i in 0..n_div{
         tanzakus_most_stable.data[i] = {
             let mut tanzaku = tanzakuss[0].data[i];
+            tanzaku.stable = Some(systems[0]);
             let mut min_energy = cal_e_vs_ns[0][i];
 
             for j in 1..tanzakuss.len(){
                 if cal_e_vs_ns[j][i] < min_energy{
                     tanzaku = tanzakuss[j].data[i];
                     min_energy = cal_e_vs_ns[j][i];
+                    tanzaku.stable = Some(systems[j]);
                 }
             }
             tanzaku
@@ -57,9 +59,9 @@ pub fn compare_6_spinmodel(param : Param) {
     //出力
     let dir = "./out_tanzaku/compare_6_spinmodel".to_string();
     for tanzakus in tanzakuss{
-        tanzakus.write_to_dat(Some(&dir)).unwrap();
+        tanzakus.write_to_dat(Some(&dir),false).unwrap();
     }
-    tanzakus_most_stable.write_to_dat(Some(&dir)).unwrap();
+    tanzakus_most_stable.write_to_dat(Some(&dir),true).unwrap();
 }
 
 use crate::{

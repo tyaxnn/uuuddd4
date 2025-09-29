@@ -94,6 +94,26 @@ impl System{
 
         format!("{}_lambda{}_j{}", system_name, self.param().lambda.to_string().replace('.', "p"), self.param().jj.to_string().replace('.', "p"))
     }
+    pub fn debug_only_name(&self) -> String{
+        let system_name = match self {
+            Self::Uuuddd(_) => "Uuuddd",
+            Self::Tmd(_) => "Tmd",
+            Self::Sato(_) => "Sato",
+            //--------------------------------------------------------------------
+            Self::FmTmd(_) => "FmTmd",
+            Self::One1Tmd(_) => "One1Tmd",
+            Self::One2Tmd(_) => "One2Tmd",
+            Self::TwinTmd(_) => "TwinTmd",
+            Self::Tri1Tmd(_) => "Tri1Tmd",
+            Self::Tri2Tmd(_) => "Tri2Tmd",
+            Self::UuudddTmd(_) => "UuudddTmd",
+            Self::SatoTmd(_) => "SatoTmd",
+            //--------------------------------------------------------------------
+            Self::Stable(_) => "Stable",
+        };
+
+        system_name.to_string()
+    }
     pub fn spinseq(&self) -> SpinSeq6{
         match self {
             Self::UuudddTmd(_) | Self::Uuuddd(_)=> {

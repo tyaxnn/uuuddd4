@@ -25,7 +25,8 @@ fn main() -> std::io::Result<()> {
     //let system = system::model::System::UuudddTmd(Param::interesting());
 
     let start = Instant::now();
-        compare_6_spinmodel(Param::new(0.3,0.25));
+    
+    compare_6_spinmodel(Param::new(0.3,0.1),35);
 
     // let tanzaku = parallel_calculate_tanzaku(calc_setting, system);
 

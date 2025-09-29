@@ -23,7 +23,7 @@ impl Tanzakus{
             system
         }
     }
-    pub fn write_to_dat(&self,dir :  Option<&String>) -> std::io::Result<()>{
+    pub fn write_to_dat(&self,dir :  Option<&String>, create_stable: bool) -> std::io::Result<()>{
 
         let dir = match dir{
             Some(d) => d,
@@ -36,10 +36,26 @@ impl Tanzakus{
         let path = format!("{}/data_{}_{}.dat", dir, system_str, self.setting.debug());
 
         let mut file = std::fs::File::create(path)?;
-        writeln!(file, "# n,energy,berry,bcd_x,bcd_y,qmd_x,qmd_y")?;
-        for tanzaku in &self.data{
-            writeln!(file, "{},{},{},{},{},{},{}",tanzaku.n,tanzaku.energy,tanzaku.berry,tanzaku.bcd.x,tanzaku.bcd.y,tanzaku.qmd.x,tanzaku.qmd.y)?;
+
+        if create_stable {
+            writeln!(file, "# n,energy,berry,bcd_x,bcd_y,qmd_x,qmd_y,stable")?;
+
+
+            for tanzaku in &self.data{
+                let stable_name = match tanzaku.stable {
+                    Some(system) => system.debug_only_name(),
+                    None => "None".to_string(),
+                };
+                writeln!(file, "{},{},{},{},{},{},{},{}",tanzaku.n,tanzaku.energy,tanzaku.berry,tanzaku.bcd.x,tanzaku.bcd.y,tanzaku.qmd.x,tanzaku.qmd.y,stable_name)?;
+            }
         }
+        else{
+            writeln!(file, "# n,energy,berry,bcd_x,bcd_y,qmd_x,qmd_y")?;
+            for tanzaku in &self.data{
+                writeln!(file, "{},{},{},{},{},{},{}",tanzaku.n,tanzaku.energy,tanzaku.berry,tanzaku.bcd.x,tanzaku.bcd.y,tanzaku.qmd.x,tanzaku.qmd.y)?;
+            }
+        }
+
         Ok(())
     }
     pub fn write_bcd_sum_to_tanzakus(&mut self, all_heights_maps : &AllHeightMaps) {
@@ -233,6 +249,7 @@ pub struct Tanzaku {
     pub berry : f64,
     pub bcd : Vector2<f64>,
     pub qmd : Vector2<f64>,
+    pub stable : Option<System>,
 }
 
 impl Tanzaku{
@@ -242,7 +259,8 @@ impl Tanzaku{
             energy,
             berry,
             bcd,
-            qmd
+            qmd,
+            stable : None,
         }
     }
 }
