@@ -42,7 +42,14 @@ j = 0.1
 mesh = 400
 div = 307
 threshold_berry = 12
-main_mesh = 10
+main_mesh = 35
+
+only_norm = False
+
+if only_norm:
+    nrows = 3
+else:
+    nrows = 5
 
 spin_names = ["FmTmd","One1Tmd","One2Tmd","TwinTmd","Tri1Tmd","UuudddTmd","Tri2Tmd","SatoTmd","stable"]
 
@@ -58,10 +65,10 @@ file_list = [
     create_filename_base_2(spin_names[8], lam, j, mesh, mesh, div, threshold_berry, main_mesh,"compare_6_spinmodel"),
 ]
 
-labels = ["DDDDDD"   ,"UDDDDD"     ,"DUDDDD"    ,"UUDDDD"    ,"UDUDDD"    ,"UUUDDD"    ,"DUDUDD"    ,"UDUDUD"     ,"Most stable"]
+labels = ["FM"   ,"UDDDDD"     ,"DUDDDD"    ,"UUDDDD"    ,"UDUDDD"    ,"UUUDDD"    ,"DUDUDD"    ,"AFM"     ,"Most stable"]
 colors = cm.gist_rainbow(np.linspace(0, 1, 8))
 
-out_title = f"stable_lambda{lam}_j{j}_rev2"
+out_title = f"stable_lambda{lam}_j{j}_rev2_{only_norm}"
 
 # ==== 色設定 ====
 num_files = len(file_list) -1
@@ -71,7 +78,7 @@ num_files = len(file_list) -1
 plt.rcParams['font.size'] = 24
 
 # ==== プロット準備 ====
-fig, axes = plt.subplots(nrows=5, ncols=1, figsize=(14, 16), sharex=True)  # 横幅を広げた
+fig, axes = plt.subplots(nrows=nrows, ncols=1, figsize=(12, 20), sharex=True)  # 横幅を広げた
 
 # ==== 全ファイルのy軸範囲をまとめて取得 ====
 ymins = np.full(5, np.inf)
@@ -95,13 +102,18 @@ for i in range(len(file_list) - 1):  # stableを除く
     line_width = 0.4
 
     if labels[i] == "UUUDDD" or labels[i] == "UUDDDD":
-        line_width = 2
+        line_width = 1
 
     axes[0].plot(df["n"], df["bc_sum"], color=color, linewidth=line_width)
-    axes[1].plot(df["n"], df["bcd_x_sum"], color=color, linewidth=line_width)
-    axes[2].plot(df["n"], df["bcd_y_sum"] * 0.5 + df["bcd_x_sum"] * np.sqrt(3) * 0.5, color=color, linewidth=line_width)
-    axes[3].plot(df["n"], df["qmd_x_sum"], color=color, linewidth=line_width)
-    axes[4].plot(df["n"], df["qmd_x_sum"] * 0.5 + df["qmd_y_sum"] * np.sqrt(3) * 0.5, color=color, linewidth=line_width)
+
+    if only_norm is False:
+        axes[1].plot(df["n"], df["bcd_x_sum"], color=color, linewidth=line_width)
+        axes[2].plot(df["n"], df["bcd_y_sum"], color=color, linewidth=line_width)
+        axes[3].plot(df["n"], df["qmd_x_sum"], color=color, linewidth=line_width)
+        axes[4].plot(df["n"], df["qmd_y_sum"], color=color, linewidth=line_width)
+    else:
+        axes[1].plot(df["n"], np.sqrt(df["bcd_x_sum"] ** 2 + df["bcd_y_sum"] ** 2), color=color, linewidth=line_width)
+        axes[2].plot(df["n"], np.sqrt(df["qmd_x_sum"] ** 2 + df["qmd_y_sum"] ** 2), color=color, linewidth=line_width)
 
 
 # 各stableのデータポイントに対して処理
@@ -133,46 +145,60 @@ for stable in stable_df["stable"]:
 marker_size = 25
 
 axes[0].scatter(stable_df["n"], stable_df["bc_sum"], color=colors_for_stable, s=marker_size, alpha=0.7)
-axes[1].scatter(stable_df["n"], stable_df["bcd_x_sum"], color=colors_for_stable, s=marker_size, alpha=0.7)
-axes[2].scatter(stable_df["n"], stable_df["bcd_y_sum"] * 0.5 + stable_df["bcd_x_sum"] * np.sqrt(3) * 0.5, color=colors_for_stable, s=marker_size, alpha=0.7)
-axes[3].scatter(stable_df["n"], stable_df["qmd_x_sum"], color=colors_for_stable, s=marker_size, alpha=0.7)
-axes[4].scatter(stable_df["n"], stable_df["qmd_x_sum"] * 0.5 + stable_df["qmd_y_sum"] * np.sqrt(3) * 0.5, color=colors_for_stable, s=marker_size, alpha=0.7)
+
+if only_norm is False:
+    axes[1].scatter(stable_df["n"], stable_df["bcd_x_sum"], color=colors_for_stable, s=marker_size, alpha=0.7)
+    axes[2].scatter(stable_df["n"], stable_df["bcd_y_sum"], color=colors_for_stable, s=marker_size, alpha=0.7)
+    axes[3].scatter(stable_df["n"], stable_df["qmd_x_sum"], color=colors_for_stable, s=marker_size, alpha=0.7)
+    axes[4].scatter(stable_df["n"], stable_df["qmd_y_sum"], color=colors_for_stable, s=marker_size, alpha=0.7)
+else:
+    axes[1].scatter(stable_df["n"], np.sqrt(stable_df["bcd_x_sum"] ** 2 + stable_df["bcd_y_sum"] ** 2), color=colors_for_stable, s=marker_size, alpha=0.7)
+    axes[2].scatter(stable_df["n"], np.sqrt(stable_df["qmd_x_sum"] ** 2 + stable_df["qmd_y_sum"] ** 2), color=colors_for_stable, s=marker_size, alpha=0.7)
 
 # y軸範囲の更新
-for i, df in enumerate(dfs):
-    ymins[0] = min(ymins[0], df["bc_sum"].min())
-    ymins[1] = min(ymins[1], df["bcd_x_sum"].min())
-    ymins[2] = min(ymins[2], df["bcd_y_sum"].min())
-    ymins[3] = min(ymins[3], df["qmd_x_sum"].min())
-    ymins[4] = min(ymins[4], df["qmd_y_sum"].min())
-    ymaxs[0] = max(ymaxs[0], df["bc_sum"].max())
-    ymaxs[1] = max(ymaxs[1], df["bcd_x_sum"].max())
-    ymaxs[2] = max(ymaxs[2], df["bcd_y_sum"].max())
-    ymaxs[3] = max(ymaxs[3], df["qmd_x_sum"].max())
-    ymaxs[4] = max(ymaxs[4], df["qmd_y_sum"].max())
+ymins[0] = min(ymins[0], stable_df["bc_sum"].min())
+ymaxs[0] = max(ymaxs[0], stable_df["bc_sum"].max())
+if only_norm is False:
+    ymins[1] = min(ymins[1], stable_df["bcd_x_sum"].min())
+    ymaxs[1] = max(ymaxs[1], stable_df["bcd_x_sum"].max())
+    ymins[2] = min(ymins[2], stable_df["bcd_y_sum"].min())
+    ymaxs[2] = max(ymaxs[2], stable_df["bcd_y_sum"].max())
+    ymins[3] = min(ymins[3], stable_df["qmd_x_sum"].min())
+    ymaxs[3] = max(ymaxs[3], stable_df["qmd_x_sum"].max())
+    ymins[4] = min(ymins[4], stable_df["qmd_y_sum"].min())
+    ymaxs[4] = max(ymaxs[4], stable_df["qmd_y_sum"].max())
+else:
+    ymins[1] = min(ymins[1], np.sqrt(stable_df["bcd_x_sum"] ** 2 + stable_df["bcd_y_sum"] ** 2).min())
+    ymaxs[1] = max(ymaxs[1], np.sqrt(stable_df["bcd_x_sum"] ** 2 + stable_df["bcd_y_sum"] ** 2).max())
+    ymins[2] = min(ymins[2], np.sqrt(stable_df["qmd_x_sum"] ** 2 + stable_df["qmd_y_sum"] ** 2).min())
+    ymaxs[2] = max(ymaxs[2], np.sqrt(stable_df["qmd_x_sum"] ** 2 + stable_df["qmd_y_sum"] ** 2).max())
 
 
 # ==== y軸範囲設定 ====
 for ax, ymin, ymax in zip(axes, ymins, ymaxs):
-    yrange = ymax - ymin
+    yrange = (ymax - ymin) * 1.1
     if yrange < 2e-5:
         ax.set_ylim(-1e-5, 1e-5)
-    elif yrange > 10:
-        ax.set_ylim(-5, 5)
+    elif yrange > 500:
+        ax.set_ylim(-250, 250)
     else:
         ax.set_ylim(-abs(yrange/2), abs(yrange/2))
 
     ax.set_xlim(0.0,1.0)
 
 # ==== ラベルやタイトル ====
-axes[0].set_ylabel("BC")
-axes[1].set_ylabel("BCD X")
-axes[2].set_ylabel("BCD Y")
-axes[3].set_ylabel("QMD X")
-axes[4].set_ylabel("QMD Y")
-axes[4].set_xlabel("n")
+# axes[0].set_ylabel("BC")
+# if only_norm is False:
+#     axes[1].set_ylabel("BCD X")
+#     axes[2].set_ylabel("BCD Y")
+#     axes[3].set_ylabel("QMD X")
+#     axes[4].set_ylabel("QMD Y")
+#     axes[4].set_xlabel("n")
+# else:
+#     axes[1].set_ylabel("BCD")
+#     axes[2].set_ylabel("QMD")
+#     axes[2].set_xlabel("n")
 
-plt.suptitle("bc bcd qmd", fontsize=28)
 for ax in axes:
     ax.grid(True)
 
@@ -181,7 +207,7 @@ import matplotlib.patches as mpatches
 patches = [mpatches.Patch(color=colors[i], label=str(labels[i])) for i in range(num_files)]
 fig.legend(
     handles=patches,
-    title="Main mesh size",
+    title="",
     loc='lower center',
     ncol=4,  # 一段表示
     frameon=False,

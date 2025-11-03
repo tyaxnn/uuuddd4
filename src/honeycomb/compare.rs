@@ -64,6 +64,66 @@ pub fn compare_6_spinmodel(param : Param, main_mesh : usize) {
     tanzakus_most_stable.write_to_dat(Some(&dir),true).unwrap();
 }
 
+pub fn compare_6_spinmodel_kanemele(param : Param, main_mesh : usize) {
+    // 計算設定
+    let calc_setting = CalcSetting{
+        mesh_kx : 400,
+        mesh_ky : 400,
+        height_map_div : 307,   // 等高線の分割数
+        threshold_berry : 1e-12, // Berry曲率計算の際の閾値
+        main_mesh : main_mesh,
+    };
+
+    let systems = vec![
+        System::FmKanemele(param),
+        System::One1Kanemele(param),
+        System::One2Kanemele(param),
+        System::TwinKanemele(param),
+        System::Tri1Kanemele(param),
+        System::UuudddKanemele(param),
+        System::Tri2Kanemele(param),
+        System::AfmKanemele(param),
+    ];
+
+    let n_div = 300;
+
+    let cal_e_vs_ns : Vec<Vec<f64>> = systems.iter().map(|system|{
+        cal_e_vs_n(system, 100, n_div)
+    }).collect();
+
+    let tanzakuss : Vec<Tanzakus> = systems.iter().map(|system|{
+        // ハニカム格子の構築
+        let tanzakus = parallel_calculate_tanzaku(calc_setting, *system);
+        tanzakus.interpolate_by_n(n_div)
+    }).collect();
+
+    let mut tanzakus_most_stable = Tanzakus::new(calc_setting,System::Stable(param));
+
+    for i in 0..n_div{
+        tanzakus_most_stable.data[i] = {
+            let mut tanzaku = tanzakuss[0].data[i];
+            tanzaku.stable = Some(systems[0]);
+            let mut min_energy = cal_e_vs_ns[0][i];
+
+            for j in 1..tanzakuss.len(){
+                if cal_e_vs_ns[j][i] < min_energy{
+                    tanzaku = tanzakuss[j].data[i];
+                    min_energy = cal_e_vs_ns[j][i];
+                    tanzaku.stable = Some(systems[j]);
+                }
+            }
+            tanzaku
+        }
+    }
+
+    //出力
+    let dir = "./out_tanzaku/compare_6_spinmodel_kanemele".to_string();
+    for tanzakus in tanzakuss{
+        tanzakus.write_to_dat(Some(&dir),false).unwrap();
+    }
+    tanzakus_most_stable.write_to_dat(Some(&dir),true).unwrap();
+}
+
 use crate::{
     honeycomb::util::i_j_to_kk,
     system::diag::diag

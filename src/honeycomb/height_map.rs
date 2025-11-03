@@ -1,6 +1,6 @@
 use crate::honeycomb::{
     cal_berry::{cal_anomaly_velocity, calculate_berry_curvature_from_seud, calculate_quantum_metric_from_seud, Tensor}, 
-    honeycomb_grids::{BandInfo, Grid, Grids}, setting::CalcSetting, util::cal_cell_area
+    honeycomb_grids::{BandInfo, Grid, Grids}, setting::CalcSetting, util::{cal_cell_area, move_bz, to_hex}
 };
 
 use crate::system::{
@@ -97,7 +97,7 @@ impl AllHeightMaps{
 
     /// AllHeightMapsをPythonで可視化できる形式で.datファイルに出力する
     /// 出力形式: energy kx ky line_start_kx line_start_ky line_end_kx line_end_ky spin band_index
-    pub fn write_to_dat(&self, filename: &str) -> IoResult<()> {
+    pub fn write_to_dat(&self, filename: &str, size : usize) -> IoResult<()> {
         let mut file = File::create(filename)?;
         
         // ヘッダーを書き込み
@@ -118,16 +118,36 @@ impl AllHeightMaps{
                     for line in &height_map_level.0 {
                         let bcd_x = line.anomaly_velocity.unwrap().x * line.berry.unwrap() * line.length();
                         let bcd_y = line.anomaly_velocity.unwrap().y * line.berry.unwrap() * line.length();
-                        writeln!(
-                            file,
-                            "{:.6},{:.6},{:.6},{:.6},{:.6},{:.12},{:.12},{},{}",
-                            energy,
-                            line.ini.x, line.ini.y,
-                            line.end.x, line.end.y,
-                            bcd_x, bcd_y,
-                            spin,
-                            band_index
-                        )?;
+
+                        for index1 in 0..4{
+                            for index2 in 0..4{
+                                let i = index1 - 1;
+                                let j = index2 - 1;
+
+                                let new_line_ini = move_bz(line.ini, i, j, size);
+                                let new_line_end = move_bz(line.end, i, j, size);
+
+                                writeln!(
+                                    file,
+                                    "{:.6},{:.6},{:.6},{:.6},{:.6},{:.12},{:.12},{},{}",
+                                    energy,
+                                    new_line_ini.x, new_line_ini.y,
+                                    new_line_end.x, new_line_end.y,
+                                    bcd_x, bcd_y,
+                                    spin,
+                                    band_index
+                                                            
+                                )?;
+                            }
+                        }
+
+                        // let (new_line_ini, changed1) = to_hex(line.ini, size);
+                        // let (new_line_end, changed2) = to_hex(line.end, size);
+
+                        // if (changed1 && changed2) || (changed1 == false && changed2 == false) {
+
+                        // }
+                        
                     }
                 }
             }
@@ -137,12 +157,12 @@ impl AllHeightMaps{
     }
 
     /// outputディレクトリに等高線データを出力する便利メソッド
-    pub fn write_to_output_dir(&self) -> IoResult<()> {
+    pub fn write_to_output_dir(&self, size : usize) -> IoResult<()> {
         // outputディレクトリを作成
         std::fs::create_dir_all("./output")?;
         
         // メインの等高線データを出力
-        self.write_to_dat("./output/contour_lines.dat")?;
+        self.write_to_dat("./output/contour_lines.dat", size)?;
         
         println!("Contour data written to ./output/contour_lines.dat");
         println!("Use Python scripts in ./output/ to visualize the data");

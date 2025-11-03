@@ -56,23 +56,23 @@ def create_filename_base_2(prefix, lambda_val, j_val, mesh_x, mesh_y, div, thres
 
 lam = 0.3
 j = 0.25
-mesh = 400
+mesh = 100
 file_list = [
-    create_filename_base_2("UuudddTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
-    create_filename_base_2("TwinTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
-    create_filename_base_2("One2Tmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
-    create_filename_base_2("Tri1Tmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
-    create_filename_base_2("Tri2Tmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
-    create_filename_base_2("FmTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
-    create_filename_base_2("SatoTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
-    create_filename_base_2("stable", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    create_filename_base_2("UuudddKanemele", lam, j, mesh, mesh, 307, 12, 10),
+    # create_filename_base_2("TwinTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    # create_filename_base_2("One2Tmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    # create_filename_base_2("Tri1Tmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    # create_filename_base_2("Tri2Tmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    # create_filename_base_2("FmTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    # create_filename_base_2("SatoTmd", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
+    # create_filename_base_2("stable", lam, j, mesh, mesh, 307, 12, 35,"compare_6_spinmodel"),
 ]
 
-labels = ["uuuddd", "Twin", "One2", "Tri1", "Tri2", "Fm", "Sato", "stable"]
+labels = ["uuuddd+ kanemele"]
 
 row_num = 5
 
-out_title = f"stable_lambda{lam}_j{j}_rev"
+out_title = f"uuuddd_kenemele"
 
 create_stable = True
 
@@ -106,7 +106,7 @@ colors = cm.rainbow(np.linspace(0, 1, num_files))
 plt.rcParams['font.size'] = 24
 
 # ==== プロット準備 ====
-fig, axes = plt.subplots(nrows=row_num, ncols=1, figsize=(14, 16), sharex=True)  # 横幅を広げた
+fig, axes = plt.subplots(nrows=row_num, ncols=1, figsize=(12, 20), sharex=True)  # 横幅を広げた
 
 # ==== 全ファイルのy軸範囲をまとめて取得 ====
 ymins = np.full(5, np.inf)
@@ -118,18 +118,18 @@ for i, filename in enumerate(file_list):
                      names=["n","energy", "bc_sum", "bcd_x_sum", "bcd_y_sum", "qmd_x_sum", "qmd_y_sum"])
     
     if i == len(file_list) -1 and create_stable:
-        line_width = 3
+        line_width = 2
     else:
         line_width = 1
 
     color = colors[i]
     axes[0].plot(df["n"], df["bc_sum"], color=color, linewidth=line_width)
     axes[1].plot(df["n"], df["bcd_x_sum"], color=color, linewidth=line_width)
-    axes[2].plot(df["n"], df["bcd_y_sum"] * 0.5 + df["bcd_x_sum"] * np.sqrt(3) * 0.5, color=color, linewidth=line_width)
+    axes[2].plot(df["n"], df["bcd_y_sum"], color=color, linewidth=line_width)
 
     if row_num == 5 :
         axes[3].plot(df["n"], df["qmd_x_sum"], color=color, linewidth=line_width)
-        axes[4].plot(df["n"], df["qmd_x_sum"] * 0.5 + df["qmd_y_sum"] * np.sqrt(3) * 0.5, color=color, linewidth=line_width)
+        axes[4].plot(df["n"], df["qmd_y_sum"], color=color, linewidth=line_width)
 
     # 最小最大更新
     ymins[0] = min(ymins[0], df["bc_sum"].min())
@@ -148,46 +148,48 @@ for i, filename in enumerate(file_list):
 
 # ==== y軸範囲設定 ====
 for ax, ymin, ymax in zip(axes, ymins, ymaxs):
-    yrange = ymax - ymin
-    if yrange < 2e-5:
-        ax.set_ylim(-1e-5, 1e-5)
-    elif yrange > 10:
-        ax.set_ylim(-5, 5)
+    yrange = abs(ymax - ymin)
+    if yrange < 2e-0:
+        ax.set_ylim(-1e-0, 1e-0)
+    elif yrange > 500:
+        ax.set_ylim(-250, 250)
+    elif yrange > 500:
+        ax.set_ylim(-250, 250)
     else:
         ax.set_ylim(-abs(yrange/2), abs(yrange/2))
 
     ax.set_xlim(0.0,1.0)
 
-# ==== ラベルやタイトル ====
-axes[0].set_ylabel("BC")
-axes[1].set_ylabel("BCD X")
-axes[2].set_ylabel("BCD Y")
-if row_num == 5 :
-    axes[3].set_ylabel("QMD X")
-    axes[4].set_ylabel("QMD Y")
-    axes[4].set_xlabel("n")
-else:
-    axes[2].set_xlabel("n")
+# # ==== ラベルやタイトル ====
+# axes[0].set_ylabel("BC")
+# axes[1].set_ylabel("BCD X")
+# axes[2].set_ylabel("BCD Y")
+# if row_num == 5 :
+#     axes[3].set_ylabel("QMD X")
+#     axes[4].set_ylabel("QMD Y")
+#     axes[4].set_xlabel("n")
+# else:
+#     axes[2].set_xlabel("n")
 
-plt.suptitle("bc bcd qmd", fontsize=28)
+# plt.suptitle("bc bcd qmd", fontsize=28)
 for ax in axes:
     ax.grid(True)
 
 # ==== カラーパッチと凡例 ====
 import matplotlib.patches as mpatches
 patches = [mpatches.Patch(color=colors[i], label=str(labels[i])) for i in range(num_files)]
-fig.legend(
-    handles=patches,
-    title="Main mesh size",
-    loc='lower center',
-    ncol=3,  # 一段表示
-    frameon=False,
-    fontsize=20,
-    title_fontsize=22
-)
+# fig.legend(
+#     handles=patches,
+#     title="",
+#     loc='lower center',
+#     ncol=3,  # 一段表示
+#     frameon=False,
+#     fontsize=20,
+#     title_fontsize=22
+# )
 
-# ==== 凡例とタイトルに余白を取る ====
-plt.tight_layout(rect=[0, 0.14, 1, 0.93])  # 下にスペース追加
+# # ==== 凡例とタイトルに余白を取る ====
+# plt.tight_layout(rect=[0, 0.14, 1, 0.93])  # 下にスペース追加
 
 # ==== 保存 ====
 plt.savefig(f"./figure_qmd/{out_title}.png", dpi=300)

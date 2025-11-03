@@ -35,6 +35,32 @@ impl GridInfo{
     }
 }
 
+pub fn move_bz(kk : Vector2<f64>, i: i32, j : i32, size : usize) -> Vector2<f64>{
+    let dv2_k1 = DV2::from_car(kpp(size),size) - DV2::from_car(-k(size),size);
+    let dv2_k2 = DV2::from_car(kp(size),size) - DV2::from_car(-k(size),size);
+    kk + dv2_k1.to_car(size) * i as f64 + dv2_k2.to_car(size) * j as f64
+}
+
+pub fn to_hex(kk : Vector2<f64>, size : usize) -> (Vector2<f64>,bool) {
+
+    let mut kk_dv2 = DV2::from_car(kk, size);
+    let dv2_k1 = DV2::from_car(kpp(size),size) - DV2::from_car(-k(size),size);
+    let dv2_k2 = DV2::from_car(kp(size),size) - DV2::from_car(-k(size),size);
+
+    let mut changed = false;
+
+    if point_in_triangle_simple(kk, k(size), 2. * k(size), kpp(size)){
+            kk_dv2 = kk_dv2 - dv2_k1;
+            changed = true;
+    }
+    else if point_in_triangle_simple(kk, k(size), 2. * k(size), kp(size)){
+            kk_dv2 = kk_dv2 - dv2_k2;
+            changed = true;
+    }
+
+    (kk_dv2.to_car(size), changed)
+}
+
 pub fn i_j_to_kk(
     i : usize, j : usize, 
     mesh_kx : usize, mesh_ky : usize, 

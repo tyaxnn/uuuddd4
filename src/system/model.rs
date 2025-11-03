@@ -17,6 +17,15 @@ pub enum System{
     SatoTmd(Param),         //UDUDUD+TMD
     //--------------------------------------------------------------------
     Stable(Param),
+    //--------------------------------------------------------------------
+    FmKanemele(Param),
+    One1Kanemele(Param),
+    One2Kanemele(Param),
+    TwinKanemele(Param),
+    Tri1Kanemele(Param),
+    Tri2Kanemele(Param),
+    UuudddKanemele(Param),
+    AfmKanemele(Param),
 }
 
 impl System{
@@ -36,6 +45,15 @@ impl System{
             Self::SatoTmd(_) => {2}
             //--------------------------------------------------------------------
             Self::Stable(_) => {panic!("Stable does not have a size");}
+            //--------------------------------------------------------------------
+            Self::FmKanemele(_) => {2},
+            Self::One1Kanemele(_) => {6},
+            Self::One2Kanemele(_) => {6},
+            Self::TwinKanemele(_) => {6},
+            Self::Tri1Kanemele(_) => {6},
+            Self::Tri2Kanemele(_) => {6},
+            Self::UuudddKanemele(_) => {6},
+            Self::AfmKanemele(_) => {2},
         }
     }
     pub fn param(&self) -> &Param{
@@ -54,24 +72,41 @@ impl System{
             Self::SatoTmd(param) => param,
             //--------------------------------------------------------------------
             Self::Stable(param) => param,
+            Self::FmKanemele(param) => param,
+            Self::One1Kanemele(param) => param,
+            Self::One2Kanemele(param) => param,
+            Self::TwinKanemele(param) => param,
+            Self::Tri1Kanemele(param) => param,
+            Self::Tri2Kanemele(param) => param,
+            Self::UuudddKanemele(param) => param,
+            Self::AfmKanemele(param) => param,
         }
     }
-    pub fn tmd(&self) -> bool{
+    pub fn tmd(&self) -> f64{
         match self{
-            Self::Uuuddd(_) => false,
-            Self::Tmd(_) => true,
-            Self::Sato(_) => false,
+            Self::Uuuddd(_) => 1.0,
+            Self::Tmd(_) => 0.0,
+            Self::Sato(_) => 1.0,
             //--------------------------------------------------------------------
-            Self::FmTmd(_) => true,
-            Self::One1Tmd(_) => true,
-            Self::One2Tmd(_) => true,
-            Self::TwinTmd(_) => true,
-            Self::Tri1Tmd(_) => true,
-            Self::Tri2Tmd(_) => true,
-            Self::UuudddTmd(_) => true,
-            Self::SatoTmd(_) => true,
+            Self::FmTmd(_) => 0.0,
+            Self::One1Tmd(_) => 0.0,
+            Self::One2Tmd(_) => 0.0,
+            Self::TwinTmd(_) => 0.0,
+            Self::Tri1Tmd(_) => 0.0,
+            Self::Tri2Tmd(_) => 0.0,
+            Self::UuudddTmd(_) => 0.0,
+            Self::SatoTmd(_) => 0.0,
             //--------------------------------------------------------------------
-            Self::Stable(_) => true,
+            Self::Stable(_) => 1.0,
+            //--------------------------------------------------------------------
+            Self::FmKanemele(_) => -1.0,
+            Self::One1Kanemele(_) => -1.0,
+            Self::One2Kanemele(_) => -1.0,
+            Self::TwinKanemele(_) => -1.0,
+            Self::Tri1Kanemele(_) => -1.0,
+            Self::Tri2Kanemele(_) => -1.0,
+            Self::UuudddKanemele(_) => -1.0, 
+            Self::AfmKanemele(_) => -1.0,
         }
     }
     pub fn debug(&self) -> String{
@@ -90,9 +125,18 @@ impl System{
             Self::SatoTmd(_) => "SatoTmd",
             //--------------------------------------------------------------------
             Self::Stable(_) => "Stable",
+            //--------------------------------------------------------------------
+            Self::FmKanemele(_) => "FmKanemele",
+            Self::One1Kanemele(_) => "One1Kanemele",
+            Self::One2Kanemele(_) => "One2Kanemele",
+            Self::TwinKanemele(_) => "TwinKanemele",
+            Self::Tri1Kanemele(_) => "Tri1Kanemele",
+            Self::Tri2Kanemele(_) => "Tri2Kanemele",
+            Self::UuudddKanemele(_) => "UuudddKanemele",
+            Self::AfmKanemele(_) => "AfmKanemele",
         };
 
-        format!("{}_lambda{}_j{}", system_name, self.param().lambda.to_string().replace('.', "p"), self.param().jj.to_string().replace('.', "p"))
+        format!("{}_lambda{}_j{}", system_name, format!("{:.2}", self.param().lambda).replace('.', "p"), format!("{:.2}", self.param().jj).replace('.', "p"))
     }
     pub fn debug_only_name(&self) -> String{
         let system_name = match self {
@@ -110,34 +154,43 @@ impl System{
             Self::SatoTmd(_) => "SatoTmd",
             //--------------------------------------------------------------------
             Self::Stable(_) => "Stable",
+            //--------------------------------------------------------------------
+            Self::FmKanemele(_) => "FmKanemele",
+            Self::One1Kanemele(_) => "One1Kanemele",
+            Self::One2Kanemele(_) => "One2Kanemele",
+            Self::TwinKanemele(_) => "TwinKanemele",
+            Self::Tri1Kanemele(_) => "Tri1Kanemele",
+            Self::Tri2Kanemele(_) => "Tri2Kanemele",
+            Self::UuudddKanemele(_) => "UuudddKanemele",
+            Self::AfmKanemele(_) => "AfmKanemele",
         };
 
         system_name.to_string()
     }
     pub fn spinseq(&self) -> SpinSeq6{
         match self {
-            Self::UuudddTmd(_) | Self::Uuuddd(_)=> {
+            Self::UuudddTmd(_) | Self::Uuuddd(_) | Self::UuudddKanemele(_) => {
                 SpinSeq6::uuuddd()
             }
-            Self::One1Tmd(_) => {
+            Self::One1Tmd(_) | Self::One1Kanemele(_) => {
                 SpinSeq6::one1()
             }
-            Self::One2Tmd(_) => {
+            Self::One2Tmd(_) | Self::One2Kanemele(_) => {
                 SpinSeq6::one2()
             }
-            Self::TwinTmd(_) => {
+            Self::TwinTmd(_) | Self::TwinKanemele(_) => {
                 SpinSeq6::twin()
             }
-            Self::Tri1Tmd(_) => {
+            Self::Tri1Tmd(_) | Self::Tri1Kanemele(_) => {
                 SpinSeq6::tri1()
             }
-            Self::Tri2Tmd(_) => {
+            Self::Tri2Tmd(_) | Self::Tri2Kanemele(_) => {
                 SpinSeq6::tri2()
             }
-            Self::SatoTmd(_) | Self::Sato(_) => {
+            Self::SatoTmd(_) | Self::Sato(_) | Self::AfmKanemele(_) => {
                 SpinSeq6::afm()
             }
-            Self::FmTmd(_) => {
+            Self::FmTmd(_) | Self::FmKanemele(_) => {
                 SpinSeq6::fm()
             }
             Self::Tmd(_) => {

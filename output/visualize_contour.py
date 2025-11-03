@@ -4,59 +4,54 @@ import numpy as np
 
 # データを読み込み（ヘッダー行を手動で指定）
 column_names = ['energy', 'line_start_kx', 'line_start_ky', 'line_end_kx', 'line_end_ky', 'bcd_x', 'bcd_y', 'spin', 'band_index']
-df = pd.read_csv('contour_lines.dat', comment='#', names=column_names)
+df = pd.read_csv('contour_lines_uuuddd.dat', comment='#', names=column_names)
 
-# ユニークなスピンとバンドの組み合わせを取得
-spins = df['spin'].unique()
-bands = df['band_index'].unique()
 
-# 図を作成
-fig, axes = plt.subplots(len(spins), len(bands), figsize=(5*len(bands), 5*len(spins)))
-if len(spins) == 1 and len(bands) == 1:
-    axes = [axes]
-elif len(spins) == 1 or len(bands) == 1:
-    axes = axes.reshape(-1)
-else:
-    axes = axes.flatten()
 
-plot_idx = 0
-for spin in spins:
-    for band in bands:
-        # 該当するスピンとバンドのデータを抽出
-        subset = df[(df['spin'] == spin) & (df['band_index'] == band)]
-        
-        if len(subset) == 0:
-            continue
-            
-        ax = axes[plot_idx] if len(spins) * len(bands) > 1 else axes[0]
-        
-        # 各エネルギーレベルごとに異なる色で描画
-        energies = subset['energy'].unique()
-        colors = plt.cm.viridis(np.linspace(0, 1, len(energies)))
-        
-        for energy, color in zip(energies, colors):
-            energy_data = subset[subset['energy'] == energy]
-            
-            # 線分を描画
-            for _, row in energy_data.iterrows():
-                ax.plot([row['line_start_kx'], row['line_end_kx']], 
-                       [row['line_start_ky'], row['line_end_ky']], 
-                       color=color, alpha=0.7, linewidth=0.8)
-        
-        ax.set_xlabel('kx')
-        ax.set_ylabel('ky')
-        ax.set_title(f'Spin {spin}, Band {band}')
-        ax.grid(True, alpha=0.3)
-        ax.set_aspect('equal')
-        
-        plot_idx += 1
+# -1.29に最も近いエネルギーを探す
+target_energy = -1.11
+df['energy_diff'] = (df['energy'] - target_energy).abs()
+closest_energy = df.loc[df['energy_diff'].idxmin()]['energy']
 
+
+
+# 全てのバンド・スピンの組み合わせを取得
+band_spin_pairs = df[df['energy'] == closest_energy][['band_index', 'spin']].drop_duplicates()
+
+# プロット
+plt.figure(figsize=(6, 6))
+for i, (_, row) in enumerate(band_spin_pairs.iterrows()):
+    band = row['band_index']
+    spin = row['spin']
+    filtered = df[(df['energy'] == closest_energy) & (df['band_index'] == band) & (df['spin'] == spin)]
+    color = 'red' if spin == 1 else 'blue' if spin == 0 else 'gray'
+    for _, seg in filtered.iterrows():
+        plt.plot([seg['line_start_kx'], seg['line_end_kx']],
+                 [seg['line_start_ky'], seg['line_end_ky']],
+                 color=color, alpha=0.8, linewidth=1.2,
+                 label=f'Band {int(band)}, Spin {int(spin)}' if _ == filtered.index[0] else "")
+
+# 凡例は一度だけ
+handles, labels = plt.gca().get_legend_handles_labels()
+by_label = dict(zip(labels, handles))
+# plt.legend(by_label.values(), by_label.keys())
+plt.xlabel('kx', fontsize=24)
+plt.ylabel('ky', fontsize=24)
+plt.xlim(-2, 2)
+plt.ylim(-2, 2)
+# plt.title(f'Contours closest to E={closest_energy:.5f} (target={target_energy})')
+plt.grid(True, alpha=0.3)
+plt.gca().set_aspect('equal')
 plt.tight_layout()
-plt.savefig('contour_visualization.png', dpi=300, bbox_inches='tight')
+plt.savefig('contour_visualization_uuuddd.png', dpi=300, bbox_inches='tight')
 plt.show()
 
-# エネルギー範囲の情報を表示
-print(f"Energy range: {df['energy'].min():.3f} to {df['energy'].max():.3f}")
-print(f"Number of energy levels: {len(df['energy'].unique())}")
-print(f"Spins: {sorted(spins)}")
-print(f"Bands: {sorted(bands)}")
+# 情報表示
+print(f"Closest energy to {target_energy}: {closest_energy}")
+print("Band/Spin pairs:")
+print(band_spin_pairs)
+for i, (_, row) in enumerate(band_spin_pairs.iterrows()):
+    band = row['band_index']
+    spin = row['spin']
+    count = len(df[(df['energy'] == closest_energy) & (df['band_index'] == band) & (df['spin'] == spin)])
+    print(f"Band {int(band)}, Spin {int(spin)}: {count} segments")

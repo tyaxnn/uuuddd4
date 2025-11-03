@@ -23,11 +23,6 @@ def create_filename_base(prefix, lambda_val, j_val, mesh_x, mesh_y, div, thresho
 # ==== ファイル名リスト ====
 file_list = [
     create_filename_base("UuudddTmd", 0.3, 0.25, 1000, 1000, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("TwinTmd", 0.3, 0.25, 1000, 1000, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("One2Tmd", 0.3, 0.25, 1000, 1000, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("Tri1Tmd", 0.3, 0.25, 1000, 1000, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("FmTmd", 0.3, 0.25, 1000, 1000, 307, 12,"compare_6_spinmodel"),
-    create_filename_base("SatoTmd", 0.3, 0.25, 1000, 1000, 307, 12,"compare_6_spinmodel"),
 ]
 
 labels = ["uuuddd", "Twin", "One2", "Tri1", "Fm", "Sato"]

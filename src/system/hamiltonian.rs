@@ -59,7 +59,7 @@ pub fn hamiltonian_from_system(system: &System, kk: Vector2<f64>,force_6 : bool)
 pub fn hamiltonian_2(system : &System, kk : Vector2<f64>) -> Hamiltonian<2>{
     let param = system.param();
     let spin_seq = system.spinseq();
-    let tmd = if system.tmd(){0.0}else{1.0};
+    let tmd = system.tmd();
 
     let lambda = param.lambda;
     let jj = param.jj;
@@ -97,7 +97,7 @@ pub fn hamiltonian_2(system : &System, kk : Vector2<f64>) -> Hamiltonian<2>{
 pub fn hamiltonian_6(system : &System, kk : Vector2<f64>) -> Hamiltonian<6>{
     let param = system.param();
     let spin_seq = system.spinseq();
-    let tmd = if system.tmd(){0.0}else{1.0};
+    let tmd = system.tmd();
 
     let ed1p = Complex::exp( I * kk.dot(&D1)) * -T;
     let ed1m = Complex::exp(-I * kk.dot(&D1)) * -T;
@@ -148,7 +148,7 @@ pub fn hamiltonian_6(system : &System, kk : Vector2<f64>) -> Hamiltonian<6>{
 //2x2 pdv(H,k_x_i)
 pub fn hamiltonian_2_dxi(system : &System, kk : Vector2<f64>, xindex : usize) -> Hamiltonian<2>{
     let param = system.param();
-    let tmd = if system.tmd(){0.0}else{1.0};
+    let tmd = system.tmd();
 
     let lambda = param.lambda;
 
@@ -184,7 +184,7 @@ pub fn hamiltonian_2_dxi(system : &System, kk : Vector2<f64>, xindex : usize) ->
 //6x6 pdv(H,k_x_i)
 pub fn hamiltonian_6_dxi(system : &System, kk : Vector2<f64>, xindex : usize) -> Hamiltonian<6>{
     let param = system.param();
-    let tmd = if system.tmd(){0.0}else{1.0};    
+    let tmd = system.tmd();
 
     let ed1p = Complex::exp( I * kk.dot(&D1)) * -T;
     let ed1m = Complex::exp(-I * kk.dot(&D1)) * -T;
