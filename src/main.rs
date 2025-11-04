@@ -10,24 +10,24 @@ use std::time::Instant;
 fn main() -> std::io::Result<()> {
     //----------------------------------------------------------------------------------
 
-    // // フェルミ面の等高線データを出力するコード例
-    //     // 計算設定
-    //     let calc_setting = CalcSetting{
-    //         mesh_kx : 100,
-    //         mesh_ky : 100,
-    //         height_map_div : 39,   // 等高線の分割数
-    //         threshold_berry : 1e-12, // Berry曲率計算の際の閾値
-    //         main_mesh : 1,
-    //     };
+    // フェルミ面の等高線データを出力するコード例
+        // 計算設定
+        let calc_setting = CalcSetting{
+            mesh_kx : 100,
+            mesh_ky : 100,
+            height_map_div : 39,   // 等高線の分割数
+            threshold_berry : 1e-12, // Berry曲率計算の際の閾値
+            main_mesh : 1,
+        };
 
-    //     let system = system::model::System::Uuuddd(Param::interesting());
+        let system = system::model::System::Sato(Param::interesting());
 
-    //     let grid_info = GridInfo::no_divide();
+        let grid_info = GridInfo::no_divide();
 
-    //     let grids = Grids::build(calc_setting, system, grid_info);
-    //     let height_map = AllHeightMaps::build(&grids);
+        let grids = Grids::build(calc_setting, system, grid_info);
+        let height_map = AllHeightMaps::build(&grids);
 
-    //     let _ = height_map.write_to_dat("./output/contour_lines_uuuddd.dat", 6);
+        let _ = height_map.write_to_dat("./output/contour_lines_sato.dat", 2);
 
     //----------------------------------------------------------------------------------
 
@@ -44,23 +44,23 @@ fn main() -> std::io::Result<()> {
 
     //----------------------------------------------------------------------------------
     
-    let system = system::model::System::UuudddKanemele(Param::interesting());
-    let calc_setting = CalcSetting{
-        mesh_kx : 100,
-        mesh_ky : 100,
-        height_map_div : 307,   // 等高線の分割数
-        threshold_berry : 1e-12, // Berry曲率計算の際の閾値
-        main_mesh : 10,
-    };
+    // let system = system::model::System::UuudddKanemele(Param::interesting());
+    // let calc_setting = CalcSetting{
+    //     mesh_kx : 100,
+    //     mesh_ky : 100,
+    //     height_map_div : 307,   // 等高線の分割数
+    //     threshold_berry : 1e-12, // Berry曲率計算の際の閾値
+    //     main_mesh : 10,
+    // };
 
-    let tanzaku = parallel_calculate_tanzaku(calc_setting, system);
+    // let tanzaku = parallel_calculate_tanzaku(calc_setting, system);
 
-    tanzaku.interpolate_by_n(3000).write_to_dat(None,false)?;
+    // tanzaku.interpolate_by_n(3000).write_to_dat(None,false)?;
 
 
-    let tanzaku = parallel_calculate_tanzaku(calc_setting, system);
+    // let tanzaku = parallel_calculate_tanzaku(calc_setting, system);
 
-    tanzaku.interpolate_by_n(3000).write_to_dat(None,false)?;
+    // tanzaku.interpolate_by_n(3000).write_to_dat(None,false)?;
 
     //----------------------------------------------------------------------------------
 
